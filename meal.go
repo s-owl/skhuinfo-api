@@ -71,7 +71,9 @@ func GetMealIds(c *gin.Context) {
 	// 게시판에서 학식 목록을 가져오려 시도한다.
 	list, err := getMealURL()
 	// 에러가 있으면 에러를 전송하고 끝내고 아니면 데이터를 전송
-	if TransportError(c, err) {
+	if err != nil {
+		message := MakeErrorMessage(err)
+		c.JSON(message.StatusCode, message)
 		return
 	}
 
