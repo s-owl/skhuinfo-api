@@ -28,6 +28,11 @@ func (code ErrorCode) CreateError(inner error) error {
 	}
 }
 
+// APIError의 Unwrap 기능 구현
+func (e *APIError) Unwrap() error {
+	return e.inner
+}
+
 // 에러의 문자열 표현
 func (e *APIError) Error() string {
 	message := "알수없는 오류"
@@ -63,9 +68,9 @@ func (e *APIError) GetHttpStatusCode() int {
 명명된 반환 변수(named return value)로 error 타입을 만든 후 defer로 사용해주세요.
 ex)
 func blahblahfunc() (err error) {
-	defer WhereInError(err, "아무튼")
+	defer WhereInError(&err, "아무튼")
 
-	if err = somethingError() {
+	if err = somethingError(); err != nil {
 		return
 	}
 
