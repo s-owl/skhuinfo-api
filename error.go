@@ -1,8 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // 에러 분류를 위한 코드
@@ -10,7 +13,8 @@ type ErrorCode int
 
 // 에러 분류
 const (
-	NetworkError ErrorCode = iota + 1
+	UnknownError ErrorCode = iota
+	NetworkError
 	EncodingError
 )
 
@@ -21,7 +25,7 @@ type APIError struct {
 }
 
 // 에러코드에서 API 에러를 생성한다.
-func (code ErrorCode) CreateError(inner error) error {
+func (code ErrorCode) CreateError(inner error) *APIError {
 	return &APIError{
 		code,
 		inner,
@@ -52,7 +56,9 @@ func (e *APIError) Error() string {
 
 // 에러에서 http 상태 코드를 알아낸다.
 func (e *APIError) GetHttpStatusCode() int {
+	// 해당 목록에 없으면 기본적으로 500 서버 내부 오류
 	statusCode := http.StatusInternalServerError
+
 	switch e.Code {
 	case NetworkError:
 		statusCode = http.StatusNotFound
@@ -61,6 +67,39 @@ func (e *APIError) GetHttpStatusCode() int {
 	}
 
 	return statusCode
+}
+
+/*
+에러를 받아 JSON형태로 http 전송을 하는 함수
+에러가 아니면 전송을 하지 않고 false 반환하고 전송완료 시 true를 반환
+*/
+func TransportError(c *gin.Context, err error) bool {
+	// 에러가 아니면 false를 반환한다.
+	if err == nil {
+		return false
+	}
+
+	// 에러를 분석하고 전송하기 위한 변수
+	var wrap *APIError
+	var statusCode int
+	var message string
+
+	// APIError 형식인지 확인하고 아니면 APIError 형식으로 변경한다.
+	if !errors.As(err, &wrap) {
+		wrap = UnknownError.CreateError(err)
+		err = wrap
+	}
+
+	// 필요한 자료를 받아온다.
+	statusCode = wrap.GetHttpStatusCode()
+	message = err.Error()
+
+	// JSON 형식으로 전송한다.
+	c.JSON(statusCode, gin.H{
+		"error": message,
+	})
+
+	return true
 }
 
 /*

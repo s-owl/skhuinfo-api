@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/PuerkitoBio/goquery"
@@ -49,7 +48,7 @@ func getMealURL() (list []MealURL, err error) {
 		})
 	})
 
-	return list, nil
+	return
 }
 
 /*
@@ -71,18 +70,8 @@ func getMealURL() (list []MealURL, err error) {
 func GetMealIds(c *gin.Context) {
 	// 게시판에서 학식 목록을 가져오려 시도한다.
 	list, err := getMealURL()
-	if err != nil {
-		// 에러 종류를 파악할 수 있는 구조체를 선언
-		var wrap *APIError
-		// 반드시 있는 에러 타입으로 if로 굳이 확인하지 않아도 된다.
-		errors.As(err, &wrap)
-		// 발생된 에러로 http 상태 번호를 활당한다.
-		statusCode := wrap.GetHttpStatusCode()
-
-		c.JSON(statusCode, gin.H{
-			"error": err.Error(),
-		})
-
+	// 에러가 있으면 에러를 전송하고 끝내고 아니면 데이터를 전송
+	if TransportError(c, err) {
 		return
 	}
 
