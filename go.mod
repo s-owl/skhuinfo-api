@@ -1,4 +1,4 @@
-module github.com/tpdns90321/skhuinfo-test
+module github.com/s-owl/skhuinfo-api
 
 go 1.14
 
