@@ -23,13 +23,12 @@ var regexIDFromURL *regexp.Regexp = regexp.MustCompile("idx=(\\d+)&")
 1주간의 학식이 담겨있는 링크들을 게시판에서 추출한다.
 MealID 구조체 배열로 반환한다.
 */
-func getMealID() (list []MealID, err error) {
+func getMealID(client HttpClient) (list []MealID, err error) {
 	// url 목록을 저장할 변수
 	list = []MealID{}
 	defer WhereInError(&err, "학식 목록")
 
 	// 학식이 있는 게시판 목록을 가져온다
-	client := &http.Client{Timeout: TIMEOUT}
 	req, err := http.NewRequest("GET", MEAL_LIST, nil)
 	res, err := client.Do(req)
 	if err != nil {
@@ -83,7 +82,7 @@ func getMealID() (list []MealID, err error) {
 */
 func GetMealIds(c *gin.Context) {
 	// 게시판에서 학식 목록을 가져오려 시도한다.
-	list, err := getMealID()
+	list, err := getMealID(HttpReal())
 	// 에러가 있으면 에러를 전송하고 끝내고 아니면 데이터를 전송
 	if err != nil {
 		message := MakeErrorMessage(err)

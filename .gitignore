@@ -3,4 +3,8 @@ skhuinfo-api
 skhuinfo-api.exe
 
 # VIM Swap
+*.swp
 .swp
+
+# Mac Files
+.DS_Store
