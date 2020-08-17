@@ -24,6 +24,7 @@ func Test_getMealId(t *testing.T) {
 				Date:  "2019-11-29",
 			},
 			list[0],
+			"getMealID 반환값 테스트",
 		)
 	}
 }
