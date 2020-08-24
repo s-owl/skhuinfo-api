@@ -2,14 +2,33 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+
+	"github.com/s-owl/skhuinfo-api/docs"
 )
 
 func main() {
+	// programmatically set swagger info
+	docs.SwaggerInfo.Title = "SKHUINFO"
+	docs.SwaggerInfo.Description = "SKHUINFO API"
+	docs.SwaggerInfo.Version = "0.1"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
 	r := gin.Default()
-	// 학식 API
-	meal := r.Group("meal")
+	api := r.Group("api")
 	{
-		meal.GET("/ids", GetMealIds)
+		v1 := api.Group("v1")
+		// 학식 API
+		meal := v1.Group("meal")
+		{
+			meal.GET("/ids", GetMealIds)
+		}
 	}
+
+	// swagger handler
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.Run()
 }
