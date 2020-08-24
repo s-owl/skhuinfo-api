@@ -64,22 +64,18 @@ func getMealID(client HttpClient) (list []MealID, err error) {
 	return
 }
 
-/*
-1주간의 학식이 담겨있는 링크들을 게시판에서 추출하고 바로 JSON 형태로 전송한다.
-이전에 SKHUS 프로젝트 사용했던 방식으로 여기에서 얻은 링크를
-다른 API에 인수로 제공해서 학식 정보를 얻어냈다.
-
-{
-	"data": [
-		{
-			"id": Number,
-			"title": "학생식당 주간메뉴...",
-			"date": "2019-XX-XX",
-		}, ...
-	],
-	"error": "error message when occured, else empty"
+type GetMealIdsResult struct {
+	Data []MealID `json:"data"`
 }
-*/
+
+// GetMealIds godoc
+// @Summary 학식 게시판에서 학식 목록을 가져온다.
+// @Description MealID 배열인 data를 가진 구조체를 리턴받는다.
+// @Produce json
+// @Success 200 {object} GetMealIdsResult
+// @Failure 404 {object} ErrorMessage
+// @Failure 502 {object} ErrorMessage
+// @Router /meal/ids [get]
 func GetMealIds(c *gin.Context) {
 	// 게시판에서 학식 목록을 가져오려 시도한다.
 	list, err := getMealID(HttpReal())
@@ -90,7 +86,7 @@ func GetMealIds(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": list,
+	c.JSON(http.StatusOK, GetMealIdsResult{
+		list,
 	})
 }

@@ -1,0 +1,46 @@
+definitions:
+  main.ErrorMessage:
+    properties:
+      error:
+        type: string
+    type: object
+  main.GetMealIdsResult:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/main.MealID'
+        type: array
+    type: object
+  main.MealID:
+    properties:
+      date:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /meal/ids:
+    get:
+      description: MealID 배열인 data를 가진 구조체를 리턴받는다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.GetMealIdsResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorMessage'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/main.ErrorMessage'
+      summary: 학식 게시판에서 학식 목록을 가져온다.
+swagger: "2.0"
