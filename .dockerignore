@@ -1,0 +1,9 @@
+# 프로젝트 관리 파일 제외
+README.md
+.git
+.gitignore
+.dockerignore
+Dockerfile
+
+# 실제 실행 시 api 상태를 반영하기 위해 docs는 빌드 시 생성
+docs/
