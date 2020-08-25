@@ -8,7 +8,8 @@ import (
 
 var MealHttpMock HttpClient = &HttpMock{
 	map[string]string{
-		MEAL_LIST: "test/meal_list.html",
+		MEAL_LIST:          "test/meal_list.html",
+		MEAL_BOARD + "389": "test/meal_board_389.html",
 	},
 }
 
@@ -25,6 +26,28 @@ func Test_getMealId(t *testing.T) {
 			},
 			list[0],
 			"getMealID 반환값 테스트",
+		)
+	}
+}
+
+func Test_getMealDataFromID(t *testing.T) {
+	assert := assert.New(t)
+	if week, err := getMealDataFromID(MealHttpMock, 389); err != nil {
+		t.Fatal(err)
+	} else {
+		assert.Equal(
+			Diet{
+				`사골순대국
+
+쌀밥
+미트볼조림
+감자매콤조림
+두부구이
+김치`,
+				"",
+			},
+			week[0].Lunch.A,
+			"getMealDataFromID 반환값 테스트",
 		)
 	}
 }

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
@@ -89,4 +91,95 @@ func GetMealIds(c *gin.Context) {
 	c.JSON(http.StatusOK, GetMealIdsResult{
 		list,
 	})
+}
+
+type Diet struct {
+	Diet    string `json:"diet"`
+	Calorie string `json:"calorie"`
+}
+
+type Lunch struct {
+	A Diet `json:"a"`
+	B Diet `json:"b"`
+	C Diet `json:"c"`
+}
+
+type Dinner struct {
+	A Diet `json:"a"`
+}
+
+type MealData struct {
+	Day    string `json:"day"`
+	Date   string `json:"date"`
+	Lunch  Lunch  `json:"lunch"`
+	Dinner Dinner `json:"dinner"`
+}
+
+// css 선택자 상수
+const theadSelector string = `thead > tr:nth-child(%d) > th:nth-child(%d)`
+const tbodySelector string = `tbody > tr:nth-child(%d) > td:nth-child(%d)`
+
+// 게시판 ID를 통해 한 주의 학식을 가져온다.
+func getMealDataFromID(client HttpClient, id int) (week []MealData, err error) {
+	// 변수 초기화
+	week = []MealData{}
+	defer WhereInError(&err, "식단 데이터 처리")
+
+	// 요청 생성
+	req, _ := http.NewRequest("GET", MEAL_BOARD+strconv.Itoa(id), nil)
+	res, err := client.Do(req)
+	if err != nil {
+		err = NetworkError.CreateError(err)
+		return
+	}
+	defer res.Body.Close()
+
+	// EucKr to UTF-8
+	doc, err := goquery.NewDocumentFromReader(EucKrReaderToUtf8Reader(res.Body))
+	if err != nil {
+		err = EncodingError.CreateError(err)
+		return
+	}
+
+	// 학식 표 찾기
+	mealTable := doc.Find("table.cont_c")
+
+	// 학식 표 순회
+	for i := 0; i < 5; i++ {
+		// 학식을 추출 후 배열에 추가
+		week = append(week, MealData{
+			Day:  mealTable.Find(fmt.Sprintf(theadSelector, 1, i+2)).Text(),
+			Date: mealTable.Find(fmt.Sprintf(theadSelector, 2, i+3)).Text(),
+			Lunch: Lunch{
+				A: Diet{
+					Diet:    processDietData(mealTable, 1, i+3),
+					Calorie: mealTable.Find(fmt.Sprintf(tbodySelector, 2, i+3)).Text(),
+				},
+				B: Diet{
+					Diet:    processDietData(mealTable, 3, i+2),
+					Calorie: mealTable.Find(fmt.Sprintf(tbodySelector, 4, i+2)).Text(),
+				},
+				C: Diet{
+					Diet:    processDietData(mealTable, 5, i+2),
+					Calorie: mealTable.Find(fmt.Sprintf(tbodySelector, 6, i+2)).Text(),
+				},
+			},
+			Dinner: Dinner{
+				A: Diet{
+					Diet:    processDietData(mealTable, 7, i+3),
+					Calorie: mealTable.Find(fmt.Sprintf(tbodySelector, 8, i+3)).Text(),
+				},
+			},
+		})
+	}
+
+	return
+}
+
+// 학식 품목을 표에서 추출하는 함수
+func processDietData(sel *goquery.Selection, trIndex int, tdIndex int) string {
+	item := sel.Find(fmt.Sprintf(tbodySelector, trIndex, tdIndex))
+	htmlContent, _ := item.Html()
+	content := strings.ReplaceAll(htmlContent, "<br/>", "\n")
+	return content
 }
