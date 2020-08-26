@@ -119,6 +119,18 @@ type MealData struct {
 const theadSelector string = `thead > tr:nth-child(%d) > th:nth-child(%d)`
 const tbodySelector string = `tbody > tr:nth-child(%d) > td:nth-child(%d)`
 
+// 학식 품목을 표에서 추출하는 함수
+func processDietData(sel *goquery.Selection, trIndex int, tdIndex int) Diet {
+	item := sel.Find(fmt.Sprintf(tbodySelector, trIndex, tdIndex))
+	htmlContent, _ := item.Html()
+	content := strings.ReplaceAll(htmlContent, "<br/>", "\n")
+	calorie := sel.Find(fmt.Sprintf(tbodySelector, trIndex+1, tdIndex)).Text()
+	return Diet{
+		content,
+		calorie,
+	}
+}
+
 // 게시판 ID를 통해 한 주의 학식을 가져온다.
 func getMealDataFromID(client HttpClient, id int) (week []MealData, err error) {
 	// 변수 초기화
@@ -151,35 +163,15 @@ func getMealDataFromID(client HttpClient, id int) (week []MealData, err error) {
 			Day:  mealTable.Find(fmt.Sprintf(theadSelector, 1, i+2)).Text(),
 			Date: mealTable.Find(fmt.Sprintf(theadSelector, 2, i+3)).Text(),
 			Lunch: Lunch{
-				A: Diet{
-					Diet:    processDietData(mealTable, 1, i+3),
-					Calorie: mealTable.Find(fmt.Sprintf(tbodySelector, 2, i+3)).Text(),
-				},
-				B: Diet{
-					Diet:    processDietData(mealTable, 3, i+2),
-					Calorie: mealTable.Find(fmt.Sprintf(tbodySelector, 4, i+2)).Text(),
-				},
-				C: Diet{
-					Diet:    processDietData(mealTable, 5, i+2),
-					Calorie: mealTable.Find(fmt.Sprintf(tbodySelector, 6, i+2)).Text(),
-				},
+				A: processDietData(mealTable, 1, i+3),
+				B: processDietData(mealTable, 3, i+2),
+				C: processDietData(mealTable, 5, i+2),
 			},
 			Dinner: Dinner{
-				A: Diet{
-					Diet:    processDietData(mealTable, 7, i+3),
-					Calorie: mealTable.Find(fmt.Sprintf(tbodySelector, 8, i+3)).Text(),
-				},
+				A: processDietData(mealTable, 7, i+3),
 			},
 		})
 	}
 
 	return
-}
-
-// 학식 품목을 표에서 추출하는 함수
-func processDietData(sel *goquery.Selection, trIndex int, tdIndex int) string {
-	item := sel.Find(fmt.Sprintf(tbodySelector, trIndex, tdIndex))
-	htmlContent, _ := item.Html()
-	content := strings.ReplaceAll(htmlContent, "<br/>", "\n")
-	return content
 }
