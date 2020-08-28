@@ -181,14 +181,8 @@ func getMealDataWithID(client HttpClient, id int) (week []MealData, err error) {
 var regexDateFromTitle *regexp.Regexp = regexp.MustCompile("(\\d{1,2})\\D{1,2}(\\d{1,2})\\D{1,2}(\\d{1,2})\\D{1,2}(\\d{1,2})\\D?")
 
 // 현재 시간을 기준으로 해당 요일의 시간표를 추출한다.
-func getMealDataWithWeekNum(client HttpClient, now *time.Time, weeknum int) (day []MealData, err error) {
+func getMealDataWithWeekNum(client HttpClient, now time.Time, weeknum int) (day []MealData, err error) {
 	defer WhereInError(&err, "요일별 학식")
-
-	// 현재 주말인 경우를 제외
-	if now.Weekday() < 1 || now.Weekday() > 5 {
-		err = NotFoundError.CreateError(nil)
-		return
-	}
 
 	// 학식 게시판 목록을 가져온다.
 	ids, err := getMealID(client)
@@ -221,7 +215,7 @@ func getMealDataWithWeekNum(client HttpClient, now *time.Time, weeknum int) (day
 		endDay := time.Date(year, time.Month(numberDuration[2]), numberDuration[3], 23, 59, 59, 99, loc)
 
 		// 현재 시간이 시작일과 종료일 사이에 있는지 확인한다.
-		if startDay.After(*now) && endDay.Before(*now) {
+		if endDay.After(now) && startDay.Before(now) {
 			// 현재 주간 식단표를 가져와서 해당 요일의 식단만 분리한다.
 			var data []MealData
 			data, err = getMealDataWithID(client, id.ID)

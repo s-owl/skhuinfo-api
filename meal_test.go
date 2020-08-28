@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -10,6 +11,7 @@ var MealHttpMock HttpClient = &HttpMock{
 	map[string]string{
 		MEAL_LIST:          "test/meal_list.html",
 		MEAL_BOARD + "389": "test/meal_board_389.html",
+		MEAL_BOARD + "380": "test/meal_board_380.html",
 	},
 }
 
@@ -47,7 +49,25 @@ func Test_getMealDataWithID(t *testing.T) {
 				"",
 			},
 			week[0].Lunch.A,
-			"getMealDataFromID 반환값 테스트",
+			"getMealDataWithID 반환값 테스트",
+		)
+	}
+}
+
+func Test_getMealDataWithWeekDay(t *testing.T) {
+	assert := assert.New(t)
+	loc, _ := time.LoadLocation("Asia/Seoul")
+	now := time.Date(2019, 10, 8, 0, 0, 0, 0, loc)
+	if week, err := getMealDataWithWeekNum(MealHttpMock, now, 3); err != nil {
+		t.Fatal(err)
+	} else {
+		assert.Equal(
+			Diet{
+				"한글날",
+				"",
+			},
+			week[0].Lunch.A,
+			"getMealDataWithWeekDay 반환값 테스트",
 		)
 	}
 }
