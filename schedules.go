@@ -16,8 +16,8 @@ type GetSchedulesResult struct {
 // GetSchedules godoc
 // @Summary 월간 학사 일정 조회
 // @Description ScheduleItem 배열인 schedules를 가진 구조체를 리턴받는다.
-// @Param year path int true "년도"
-// @Param month path int true "월"
+// @Param year path int false "년도"
+// @Param month path int false "월"
 // @Produce json
 // @Success 200 {object} GetSchedulesResult
 // @Failure 404 {object} ErrorMessage

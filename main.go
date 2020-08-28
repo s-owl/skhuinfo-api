@@ -26,7 +26,11 @@ func main() {
 		{
 			meal.GET("/ids", GetMealIds)
 		}
-		v1.GET("/schedules/:year/:month", GetSchedules)
+		schedules := v1.Group("schedules")
+		{
+			schedules.GET("/:year/:month", GetSchedules)
+			schedules.GET("/", GetSchedules)
+		}
 	}
 
 	// swagger handler
