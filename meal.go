@@ -93,21 +93,25 @@ func GetMealIds(c *gin.Context) {
 	})
 }
 
+// 실제 식단 데이터
 type Diet struct {
 	Diet    string `json:"diet"`
 	Calorie string `json:"calorie"`
 }
 
+// 점심 학식
 type Lunch struct {
 	A Diet `json:"a"`
 	B Diet `json:"b"`
 	C Diet `json:"c"`
 }
 
+// 저녁 학식
 type Dinner struct {
 	A Diet `json:"a"`
 }
 
+// 학식 데이터
 type MealData struct {
 	Day    string `json:"day"`
 	Date   string `json:"date"`
@@ -132,9 +136,7 @@ func processDietData(sel *goquery.Selection, trIndex int, tdIndex int) Diet {
 }
 
 // 게시판 ID를 통해 한 주의 학식을 가져온다.
-func getMealDataFromID(client HttpClient, id int) (week []MealData, err error) {
-	// 변수 초기화
-	week = []MealData{}
+func getMealDataWithID(client HttpClient, id int) (week []MealData, err error) {
 	defer WhereInError(&err, "식단 데이터 처리")
 
 	// 요청 생성

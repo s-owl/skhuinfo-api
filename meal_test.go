@@ -30,9 +30,9 @@ func Test_getMealId(t *testing.T) {
 	}
 }
 
-func Test_getMealDataFromID(t *testing.T) {
+func Test_getMealDataWithID(t *testing.T) {
 	assert := assert.New(t)
-	if week, err := getMealDataFromID(MealHttpMock, 389); err != nil {
+	if week, err := getMealDataWithID(MealHttpMock, 389); err != nil {
 		t.Fatal(err)
 	} else {
 		assert.Equal(
