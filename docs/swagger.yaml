@@ -11,6 +11,13 @@ definitions:
           $ref: '#/definitions/main.MealID'
         type: array
     type: object
+  main.GetSchedulesResult:
+    properties:
+      schedules:
+        items:
+          $ref: '#/definitions/main.ScheduleItem'
+        type: array
+    type: object
   main.MealID:
     properties:
       date:
@@ -20,9 +27,15 @@ definitions:
       title:
         type: string
     type: object
+  main.ScheduleItem:
+    properties:
+      content:
+        type: string
+      period:
+        type: string
+    type: object
 info:
   contact: {}
-  license: {}
 paths:
   /meal/ids:
     get:
@@ -43,4 +56,34 @@ paths:
           schema:
             $ref: '#/definitions/main.ErrorMessage'
       summary: 학식 게시판에서 학식 목록을 가져온다.
+  /schedules/{year}/{month}:
+    get:
+      description: ScheduleItem 배열인 schedules를 가진 구조체를 리턴받는다.
+      parameters:
+      - description: 년도
+        in: path
+        name: year
+        required: true
+        type: integer
+      - description: 월
+        in: path
+        name: month
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.GetSchedulesResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorMessage'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/main.ErrorMessage'
+      summary: 월간 학사 일정 조회
 swagger: "2.0"

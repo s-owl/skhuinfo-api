@@ -19,7 +19,6 @@ var doc = `{
         "description": "{{.Description}}",
         "title": "{{.Title}}",
         "contact": {},
-        "license": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -37,6 +36,51 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.GetMealIdsResult"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.ErrorMessage"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/main.ErrorMessage"
+                        }
+                    }
+                }
+            }
+        },
+        "/schedules/{year}/{month}": {
+            "get": {
+                "description": "ScheduleItem 배열인 schedules를 가진 구조체를 리턴받는다.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "월간 학사 일정 조회",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "년도",
+                        "name": "year",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "월",
+                        "name": "month",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.GetSchedulesResult"
                         }
                     },
                     "404": {
@@ -75,6 +119,17 @@ var doc = `{
                 }
             }
         },
+        "main.GetSchedulesResult": {
+            "type": "object",
+            "properties": {
+                "schedules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.ScheduleItem"
+                    }
+                }
+            }
+        },
         "main.MealID": {
             "type": "object",
             "properties": {
@@ -85,6 +140,17 @@ var doc = `{
                     "type": "integer"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ScheduleItem": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "period": {
                     "type": "string"
                 }
             }

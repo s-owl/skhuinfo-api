@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/files"
-	"github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/s-owl/skhuinfo-api/docs"
 )
@@ -26,6 +26,7 @@ func main() {
 		{
 			meal.GET("/ids", GetMealIds)
 		}
+		v1.GET("/schedules/:year/:month", GetSchedules)
 	}
 
 	// swagger handler
