@@ -14,6 +14,7 @@ const (
 	UnknownError ErrorCode = iota
 	NetworkError
 	EncodingError
+	NotFoundError
 )
 
 // 에러 코드와 실제 에러를 포장하는 구조체
@@ -43,6 +44,8 @@ func (e *APIError) Error() string {
 		message = "네트워크 오류"
 	case EncodingError:
 		message = "인코딩 오류"
+	case NotFoundError:
+		message = "없는 자료"
 	}
 
 	if e.inner != nil {
@@ -59,9 +62,11 @@ func (e *APIError) getHttpStatusCode() int {
 
 	switch e.code {
 	case NetworkError:
-		statusCode = http.StatusNotFound
+		fallthrough
 	case EncodingError:
 		statusCode = http.StatusBadGateway
+	case NotFoundError:
+		statusCode = http.StatusNotFound
 	}
 
 	return statusCode

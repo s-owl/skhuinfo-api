@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
@@ -75,7 +76,6 @@ type GetMealIdsResult struct {
 // @Description MealID 배열인 data를 가진 구조체를 리턴받는다.
 // @Produce json
 // @Success 200 {object} GetMealIdsResult
-// @Failure 404 {object} ErrorMessage
 // @Failure 502 {object} ErrorMessage
 // @Router /meal/ids [get]
 func GetMealIds(c *gin.Context) {
@@ -175,5 +175,67 @@ func getMealDataWithID(client HttpClient, id int) (week []MealData, err error) {
 		})
 	}
 
+	return
+}
+
+var regexDateFromTitle *regexp.Regexp = regexp.MustCompile("(\\d{1,2})\\D{1,2}(\\d{1,2})\\D{1,2}(\\d{1,2})\\D{1,2}(\\d{1,2})\\D?")
+
+// 현재 시간을 기준으로 해당 요일의 시간표를 추출한다.
+func getMealDataWithWeekNum(client HttpClient, now *time.Time, weeknum int) (day []MealData, err error) {
+	defer WhereInError(&err, "요일별 학식")
+
+	// 현재 주말인 경우를 제외
+	if now.Weekday() < 1 || now.Weekday() > 5 {
+		err = NotFoundError.CreateError(nil)
+		return
+	}
+
+	// 학식 게시판 목록을 가져온다.
+	ids, err := getMealID(client)
+	if err != nil {
+		return
+	}
+
+	// 시간대 설정
+	loc, _ := time.LoadLocation("Asia/Seoul")
+
+	for _, id := range ids {
+		// 올린 날짜에서 년도를 가져오고
+		year, _ := strconv.Atoi(strings.Split(id.Date, "-")[0])
+
+		// 제목에서 기간을 가져온다.
+		parsedDuration := regexDateFromTitle.FindStringSubmatch(id.Title)
+		if len(parsedDuration) != 5 {
+			continue
+		}
+
+		// 가져온 기간을 숫자 배열로 다시 변환한다.
+		numberDuration := []int{}
+		for _, plain := range parsedDuration[1:] {
+			num, _ := strconv.Atoi(plain)
+			numberDuration = append(numberDuration, num)
+		}
+
+		// 년도와 기간을 통해 시작일과 종료일을 Time 자료형으로 생성한다.
+		startDay := time.Date(year, time.Month(numberDuration[0]), numberDuration[1], 0, 0, 0, 0, loc)
+		endDay := time.Date(year, time.Month(numberDuration[2]), numberDuration[3], 23, 59, 59, 99, loc)
+
+		// 현재 시간이 시작일과 종료일 사이에 있는지 확인한다.
+		if startDay.After(*now) && endDay.Before(*now) {
+			// 현재 주간 식단표를 가져와서 해당 요일의 식단만 분리한다.
+			var data []MealData
+			data, err = getMealDataWithID(client, id.ID)
+			if err != nil {
+				return
+			}
+
+			day = []MealData{
+				data[weeknum-1],
+			}
+			return
+		}
+	}
+
+	err = NotFoundError.CreateError(nil)
 	return
 }
