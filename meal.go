@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -180,9 +181,15 @@ func getMealDataWithID(client HttpClient, id int) (week []MealData, err error) {
 
 var regexDateFromTitle *regexp.Regexp = regexp.MustCompile("(\\d{1,2})\\D{1,2}(\\d{1,2})\\D{1,2}(\\d{1,2})\\D{1,2}(\\d{1,2})\\D?")
 
-// 현재 시간을 기준으로 해당 요일의 시간표를 추출한다.
-func getMealDataWithWeekNum(client HttpClient, now time.Time, weeknum int) (day []MealData, err error) {
-	defer WhereInError(&err, "요일별 학식")
+// 현재 시간을 기준으로 해당 주의 시간표를 추출한다.
+func getMealDataWithTime(client HttpClient, now time.Time) (week []MealData, err error) {
+	defer WhereInError(&err, "현재 주간 학식")
+
+	weekday := now.Weekday()
+	if weekday < time.Monday || weekday > time.Friday {
+		err = NotFoundError.CreateError(errors.New("주말에는 학식이 제공하지 않습니다."))
+		return
+	}
 
 	// 학식 게시판 목록을 가져온다.
 	ids, err := getMealID(client)
@@ -216,20 +223,99 @@ func getMealDataWithWeekNum(client HttpClient, now time.Time, weeknum int) (day 
 
 		// 현재 시간이 시작일과 종료일 사이에 있는지 확인한다.
 		if endDay.After(now) && startDay.Before(now) {
-			// 현재 주간 식단표를 가져와서 해당 요일의 식단만 분리한다.
-			var data []MealData
-			data, err = getMealDataWithID(client, id.ID)
+			// 그 주의 학식을 가져온다.
+			week, err = getMealDataWithID(client, id.ID)
 			if err != nil {
 				return
 			}
 
-			day = []MealData{
-				data[weeknum-1],
-			}
 			return
 		}
 	}
 
-	err = NotFoundError.CreateError(nil)
+	err = NotFoundError.CreateError(errors.New("해당 기간에 학식이 존재하지 않습니다."))
 	return
+}
+
+// 현재 시간을 기준으로 해당 요일의 시간표를 추출한다.
+func getMealDataWithWeekday(client HttpClient, now time.Time, weekday int) (day []MealData, err error) {
+	defer WhereInError(&err, "요일별 학식")
+
+	if weekday < 1 || weekday > 5 {
+		err = NotFoundError.CreateError(errors.New("주말에는 학식이 제공하지 않습니다."))
+		return
+	}
+
+	data, err := getMealDataWithTime(client, now)
+	if err != nil {
+		return
+	}
+
+	day = []MealData{
+		data[weekday-1],
+	}
+	return
+}
+
+type GetMealDataResult struct {
+	Data []MealData `json:"data"`
+}
+
+// godoc GetMealData
+// @Summary 학식 게시판에서 학식을 가져온다.
+// @Description MealData 배열인 data를 가진 구조체를 리턴받는다.
+// @Produce json
+// @Param id query int false "게시물 ID" 382
+// @Param day query int false "날짜 요일 (0~5)" 5
+// @Success 200 {object} GetMealDataResult
+// @Failure 400 {object} ErrorMessage
+// @Failure 404 {object} ErrorMessage
+// @Failure 502 {object} ErrorMessage
+// @Router /meal/get [get]
+func GetMealData(c *gin.Context) {
+	// GET 인수를 받는다. 기본값은 문자열 "0"
+	plainId := c.DefaultQuery("id", "0")
+	plainDay := c.DefaultQuery("day", "0")
+
+	// GET 인수로 받은 변수들을 전부 숫자로 변경한다.
+	id, err1 := strconv.Atoi(plainId)
+	day, err2 := strconv.Atoi(plainDay)
+	if err1 != nil || err2 != nil {
+		err := InvalidError.CreateError(errors.New("정수로만 사용해주세요"))
+		message := MakeErrorMessage(err)
+		c.JSON(message.StatusCode, message)
+		return
+	}
+
+	// 함수의 실행 결과를 확인하고 데이터를 전송하는 함수
+	sendMealData := func(data []MealData, err error) {
+		if err != nil {
+			message := MakeErrorMessage(err)
+			c.JSON(message.StatusCode, message)
+			return
+		}
+
+		c.JSON(http.StatusOK, GetMealDataResult{data})
+	}
+
+	if id != 0 && day != 0 {
+		data, err := getMealDataWithID(HttpReal(), id)
+		if len(data) == 5 {
+			data = []MealData{
+				data[day-1],
+			}
+		}
+		sendMealData(data, err)
+	} else if day != 0 {
+		now := time.Now()
+		data, err := getMealDataWithWeekday(HttpReal(), now, day)
+		sendMealData(data, err)
+	} else if id != 0 {
+		data, err := getMealDataWithID(HttpReal(), id)
+		sendMealData(data, err)
+	} else {
+		now := time.Now()
+		data, err := getMealDataWithTime(HttpReal(), now)
+		sendMealData(data, err)
+	}
 }

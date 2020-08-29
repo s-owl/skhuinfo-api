@@ -54,11 +54,11 @@ func Test_getMealDataWithID(t *testing.T) {
 	}
 }
 
-func Test_getMealDataWithWeekDay(t *testing.T) {
+func Test_getMealDataWithWeekday(t *testing.T) {
 	assert := assert.New(t)
 	loc, _ := time.LoadLocation("Asia/Seoul")
 	now := time.Date(2019, 10, 8, 0, 0, 0, 0, loc)
-	if week, err := getMealDataWithWeekNum(MealHttpMock, now, 3); err != nil {
+	if week, err := getMealDataWithWeekday(MealHttpMock, now, 3); err != nil {
 		t.Fatal(err)
 	} else {
 		assert.Equal(

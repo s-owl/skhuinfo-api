@@ -25,6 +25,7 @@ func main() {
 		meal := v1.Group("meal")
 		{
 			meal.GET("/ids", GetMealIds)
+			meal.GET("/get", GetMealData)
 		}
 	}
 

@@ -15,6 +15,7 @@ const (
 	NetworkError
 	EncodingError
 	NotFoundError
+	InvalidError
 )
 
 // 에러 코드와 실제 에러를 포장하는 구조체
@@ -46,6 +47,8 @@ func (e *APIError) Error() string {
 		message = "인코딩 오류"
 	case NotFoundError:
 		message = "없는 자료"
+	case InvalidError:
+		message = "잘못된 인수 오류"
 	}
 
 	if e.inner != nil {
@@ -67,6 +70,8 @@ func (e *APIError) getHttpStatusCode() int {
 		statusCode = http.StatusBadGateway
 	case NotFoundError:
 		statusCode = http.StatusNotFound
+	case InvalidError:
+		statusCode = http.StatusBadRequest
 	}
 
 	return statusCode
