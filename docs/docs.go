@@ -25,18 +25,38 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/meal/ids": {
+        "/meal/get": {
             "get": {
-                "description": "MealID 배열인 data를 가진 구조체를 리턴받는다.",
+                "description": "MealData 배열인 data를 가진 구조체를 리턴받는다.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "학식 게시판에서 학식 목록을 가져온다.",
+                "summary": "학식 게시판에서 학식을 가져온다.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "게시물 ID",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "날짜 요일 (0~5)",
+                        "name": "day",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.GetMealIdsResult"
+                            "$ref": "#/definitions/main.GetMealDataResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.ErrorMessage"
                         }
                     },
                     "404": {
@@ -53,14 +73,68 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/meal/ids": {
+            "get": {
+                "description": "MealID 배열인 data를 가진 구조체를 리턴받는다.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "학식 게시판에서 학식 목록을 가져온다.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.GetMealIdsResult"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/main.ErrorMessage"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "main.Diet": {
+            "type": "object",
+            "properties": {
+                "calorie": {
+                    "type": "string"
+                },
+                "diet": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.Dinner": {
+            "type": "object",
+            "properties": {
+                "a": {
+                    "type": "object",
+                    "$ref": "#/definitions/main.Diet"
+                }
+            }
+        },
         "main.ErrorMessage": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "main.GetMealDataResult": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.MealData"
+                    }
                 }
             }
         },
@@ -72,6 +146,42 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/main.MealID"
                     }
+                }
+            }
+        },
+        "main.Lunch": {
+            "type": "object",
+            "properties": {
+                "a": {
+                    "type": "object",
+                    "$ref": "#/definitions/main.Diet"
+                },
+                "b": {
+                    "type": "object",
+                    "$ref": "#/definitions/main.Diet"
+                },
+                "c": {
+                    "type": "object",
+                    "$ref": "#/definitions/main.Diet"
+                }
+            }
+        },
+        "main.MealData": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "day": {
+                    "type": "string"
+                },
+                "dinner": {
+                    "type": "object",
+                    "$ref": "#/definitions/main.Dinner"
+                },
+                "lunch": {
+                    "type": "object",
+                    "$ref": "#/definitions/main.Lunch"
                 }
             }
         },
