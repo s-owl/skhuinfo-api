@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var SchedulesHttpMock HttpClient = &HttpMock{
+var SchedulesHTTPMock HttpClient = &HttpMock{
 	map[string]string{
 		SCHEDULES_URL: "test/schedules_current.html",
 		SCHEDULES_URL + "?strYear=2020&strMonth=9": "test/schedules_202009.html",
@@ -15,7 +15,7 @@ var SchedulesHttpMock HttpClient = &HttpMock{
 
 func Test_getScheduleData(t *testing.T) {
 	assert := assert.New(t)
-	if list, err := getScheduleData(SchedulesHttpMock, SCHEDULES_URL); err != nil {
+	if list, err := getScheduleData(SchedulesHTTPMock, SCHEDULES_URL); err != nil {
 		t.Fatal(err)
 	} else {
 		assert.Equal(
@@ -27,7 +27,7 @@ func Test_getScheduleData(t *testing.T) {
 			"getScheduleData 반환값 테스트(인자 없이 실행)",
 		)
 	}
-	if list, err := getScheduleData(SchedulesHttpMock, SCHEDULES_URL+"?strYear=2020&strMonth=9"); err != nil {
+	if list, err := getScheduleData(SchedulesHTTPMock, SCHEDULES_URL+"?strYear=2020&strMonth=9"); err != nil {
 		t.Fatal(err)
 	} else {
 		assert.Equal(

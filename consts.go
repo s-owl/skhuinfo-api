@@ -14,6 +14,6 @@ const (
 	MEAL_LIST = SKHU_URL + "uni_zelkova/uni_zelkova_4_3_list.aspx"
 	// 학식 게시판 주소
 	MEAL_BOARD = SKHU_URL + "uni_zelkova/uni_zelkova_4_3_view.aspx?idx="
-	// 학사일정 주소
-	SCHEDULES_URL = SKHU_URL + "calendar/calendar_list_1.aspx"
+	// SchedulesURL - 학사일정 주소
+	SchedulesURL = SKHU_URL + "calendar/calendar_list_1.aspx"
 )
