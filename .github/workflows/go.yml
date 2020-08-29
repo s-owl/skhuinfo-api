@@ -32,11 +32,18 @@ jobs:
       
     - name: Build
       run: go build -v .
-
+    
     - name: Test
-      run: go test -v -cover .
+      run: go test -v -cover
+
+    - name: Generate coverage report
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic
       
-    - name: Lint
-      uses: morphy2k/revive-action@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.txt
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
