@@ -1,4 +1,5 @@
 # skhuinfo-api
+[![Go Report Card](https://goreportcard.com/badge/github.com/s-owl/skhuinfo-api)](https://goreportcard.com/report/github.com/s-owl/skhuinfo-api)
 [![codecov](https://codecov.io/gh/s-owl/skhuinfo-api/branch/master/graph/badge.svg)](https://codecov.io/gh/s-owl/skhuinfo-api)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7b2f70ac04cc40e7996a51d4d7114a5e)](https://app.codacy.com/gh/s-owl/skhuinfo-api?utm_source=github.com&utm_medium=referral&utm_content=s-owl/skhuinfo-api&utm_campaign=Badge_Grade_Settings)
 
