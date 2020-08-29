@@ -39,7 +39,7 @@ func Test_MakeErrorMessage(t *testing.T) {
 	err = NetworkError.CreateError(somethingError())
 	message = MakeErrorMessage(err)
 
-	assert.Equal(message.StatusCode, 404, "Check StatusCode")
+	assert.Equal(message.StatusCode, 502, "Check StatusCode")
 }
 
 func Test_WhereIsError(t *testing.T) {
