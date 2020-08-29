@@ -188,7 +188,7 @@ func getMealDataWithTime(client HttpClient, now time.Time) (week []mealData, err
 
 	weekday := now.Weekday()
 	if weekday < time.Monday || weekday > time.Friday {
-		err = NotFoundError.CreateError(errors.New("주말에는 학식이 제공하지 않습니다."))
+		err = NotFoundError.CreateError(nil)
 		return
 	}
 
@@ -234,7 +234,7 @@ func getMealDataWithTime(client HttpClient, now time.Time) (week []mealData, err
 		}
 	}
 
-	err = NotFoundError.CreateError(errors.New("해당 기간에 학식이 존재하지 않습니다."))
+	err = NotFoundError.CreateError(nil)
 	return
 }
 
@@ -243,7 +243,7 @@ func getMealDataWithWeekday(client HttpClient, now time.Time, weekday int) (day 
 	defer WhereInError(&err, "요일별 학식")
 
 	if weekday < 1 || weekday > 5 {
-		err = NotFoundError.CreateError(errors.New("주말에는 학식이 제공하지 않습니다."))
+		err = NotFoundError.CreateError(nil)
 		return
 	}
 
