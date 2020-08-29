@@ -26,9 +26,9 @@ type GetSchedulesResult struct {
 func GetSchedules(c *gin.Context) {
 	year := c.Param("year")
 	month := c.Param("month")
-	targetURL := SCHEDULES_URL
+	targetURL := SchedulesURL
 	if year != "" || month != "" {
-		targetURL = SCHEDULES_URL + fmt.Sprintf("?strYear=%s&strMonth=%s", year, month)
+		targetURL = SchedulesURL + fmt.Sprintf("?strYear=%s&strMonth=%s", year, month)
 	}
 	list, err := getScheduleData(HttpReal(), targetURL)
 	// 에러가 있으면 에러를 전송하고 끝내고 아니면 데이터를 전송
