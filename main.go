@@ -24,8 +24,8 @@ func main() {
 		// 학식 API
 		meal := v1.Group("meal")
 		{
-			meal.GET("/ids", GetMealIds)
-			meal.GET("/get", GetMealData)
+			meal.GET("/ids", getMealIds)
+			meal.GET("/get", getMealData)
 		}
 	}
 

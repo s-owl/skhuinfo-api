@@ -21,7 +21,7 @@ func Test_getMealId(t *testing.T) {
 		t.Fatal(err)
 	} else {
 		assert.Equal(
-			MealID{
+			mealID{
 				ID:    389,
 				Title: "학생식당 주간메뉴입니다(12/2-12/6)",
 				Date:  "2019-11-29",
@@ -38,7 +38,7 @@ func Test_getMealDataWithID(t *testing.T) {
 		t.Fatal(err)
 	} else {
 		assert.Equal(
-			Diet{
+			diet{
 				`사골순대국
 
 쌀밥
@@ -62,7 +62,7 @@ func Test_getMealDataWithWeekday(t *testing.T) {
 		t.Fatal(err)
 	} else {
 		assert.Equal(
-			Diet{
+			diet{
 				"한글날",
 				"",
 			},
