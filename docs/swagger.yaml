@@ -63,12 +63,10 @@ paths:
       - description: 년도
         in: path
         name: year
-        required: true
         type: integer
       - description: 월
         in: path
         name: month
-        required: true
         type: integer
       produces:
       - application/json

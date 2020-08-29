@@ -65,15 +65,13 @@ var doc = `{
                         "type": "integer",
                         "description": "년도",
                         "name": "year",
-                        "in": "path",
-                        "required": true
+                        "in": "path"
                     },
                     {
                         "type": "integer",
                         "description": "월",
                         "name": "month",
-                        "in": "path",
-                        "required": true
+                        "in": "path"
                     }
                 ],
                 "responses": {
