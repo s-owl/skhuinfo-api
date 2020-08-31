@@ -19,44 +19,23 @@ var doc = `{
         "description": "{{.Description}}",
         "title": "{{.Title}}",
         "contact": {},
-        "license": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/meal/get": {
+        "/meal/ids": {
             "get": {
-                "description": "MealData 배열인 data를 가진 구조체를 리턴받는다.",
+                "description": "MealID 배열인 data를 가진 구조체를 리턴받는다.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "학식 게시판에서 학식을 가져온다.",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "게시물 ID",
-                        "name": "id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "날짜 요일 (0~5)",
-                        "name": "day",
-                        "in": "query"
-                    }
-                ],
+                "summary": "학식 게시판에서 학식 목록을 가져온다.",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.GetMealDataResult"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/main.ErrorMessage"
+                            "$ref": "#/definitions/main.GetMealIdsResult"
                         }
                     },
                     "404": {
@@ -74,18 +53,38 @@ var doc = `{
                 }
             }
         },
-        "/meal/ids": {
+        "/schedules/{year}/{month}": {
             "get": {
-                "description": "MealID 배열인 data를 가진 구조체를 리턴받는다.",
+                "description": "ScheduleItem 배열인 schedules를 가진 구조체를 리턴받는다.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "학식 게시판에서 학식 목록을 가져온다.",
+                "summary": "월간 학사 일정 조회",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "년도",
+                        "name": "year",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "월",
+                        "name": "month",
+                        "in": "path"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main.GetMealIdsResult"
+                            "$ref": "#/definitions/main.GetSchedulesResult"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.ErrorMessage"
                         }
                     },
                     "502": {
@@ -99,42 +98,11 @@ var doc = `{
         }
     },
     "definitions": {
-        "main.Diet": {
-            "type": "object",
-            "properties": {
-                "calorie": {
-                    "type": "string"
-                },
-                "diet": {
-                    "type": "string"
-                }
-            }
-        },
-        "main.Dinner": {
-            "type": "object",
-            "properties": {
-                "a": {
-                    "type": "object",
-                    "$ref": "#/definitions/main.Diet"
-                }
-            }
-        },
         "main.ErrorMessage": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string"
-                }
-            }
-        },
-        "main.GetMealDataResult": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/main.MealData"
-                    }
                 }
             }
         },
@@ -149,39 +117,14 @@ var doc = `{
                 }
             }
         },
-        "main.Lunch": {
+        "main.GetSchedulesResult": {
             "type": "object",
             "properties": {
-                "a": {
-                    "type": "object",
-                    "$ref": "#/definitions/main.Diet"
-                },
-                "b": {
-                    "type": "object",
-                    "$ref": "#/definitions/main.Diet"
-                },
-                "c": {
-                    "type": "object",
-                    "$ref": "#/definitions/main.Diet"
-                }
-            }
-        },
-        "main.MealData": {
-            "type": "object",
-            "properties": {
-                "date": {
-                    "type": "string"
-                },
-                "day": {
-                    "type": "string"
-                },
-                "dinner": {
-                    "type": "object",
-                    "$ref": "#/definitions/main.Dinner"
-                },
-                "lunch": {
-                    "type": "object",
-                    "$ref": "#/definitions/main.Lunch"
+                "schedules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.ScheduleItem"
+                    }
                 }
             }
         },
@@ -195,6 +138,17 @@ var doc = `{
                     "type": "integer"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ScheduleItem": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "period": {
                     "type": "string"
                 }
             }

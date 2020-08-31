@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/files"
-	"github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/s-owl/skhuinfo-api/docs"
 )
@@ -26,6 +26,11 @@ func main() {
 		{
 			meal.GET("/ids", getMealIds)
 			meal.GET("/get", getMealData)
+		}
+		schedules := v1.Group("schedules")
+		{
+			schedules.GET("/:year/:month", GetSchedules)
+			schedules.GET("/", GetSchedules)
 		}
 	}
 

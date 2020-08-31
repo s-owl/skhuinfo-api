@@ -1,28 +1,8 @@
 definitions:
-  main.Diet:
-    properties:
-      calorie:
-        type: string
-      diet:
-        type: string
-    type: object
-  main.Dinner:
-    properties:
-      a:
-        $ref: '#/definitions/main.Diet'
-        type: object
-    type: object
   main.ErrorMessage:
     properties:
       error:
         type: string
-    type: object
-  main.GetMealDataResult:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/main.MealData'
-        type: array
     type: object
   main.GetMealIdsResult:
     properties:
@@ -31,30 +11,12 @@ definitions:
           $ref: '#/definitions/main.MealID'
         type: array
     type: object
-  main.Lunch:
+  main.GetSchedulesResult:
     properties:
-      a:
-        $ref: '#/definitions/main.Diet'
-        type: object
-      b:
-        $ref: '#/definitions/main.Diet'
-        type: object
-      c:
-        $ref: '#/definitions/main.Diet'
-        type: object
-    type: object
-  main.MealData:
-    properties:
-      date:
-        type: string
-      day:
-        type: string
-      dinner:
-        $ref: '#/definitions/main.Dinner'
-        type: object
-      lunch:
-        $ref: '#/definitions/main.Lunch'
-        type: object
+      schedules:
+        items:
+          $ref: '#/definitions/main.ScheduleItem'
+        type: array
     type: object
   main.MealID:
     properties:
@@ -65,42 +27,16 @@ definitions:
       title:
         type: string
     type: object
+  main.ScheduleItem:
+    properties:
+      content:
+        type: string
+      period:
+        type: string
+    type: object
 info:
   contact: {}
-  license: {}
 paths:
-  /meal/get:
-    get:
-      description: MealData 배열인 data를 가진 구조체를 리턴받는다.
-      parameters:
-      - description: 게시물 ID
-        in: query
-        name: id
-        type: integer
-      - description: 날짜 요일 (0~5)
-        in: query
-        name: day
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.GetMealDataResult'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/main.ErrorMessage'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/main.ErrorMessage'
-        "502":
-          description: Bad Gateway
-          schema:
-            $ref: '#/definitions/main.ErrorMessage'
-      summary: 학식 게시판에서 학식을 가져온다.
   /meal/ids:
     get:
       description: MealID 배열인 data를 가진 구조체를 리턴받는다.
@@ -111,9 +47,41 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/main.GetMealIdsResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorMessage'
         "502":
           description: Bad Gateway
           schema:
             $ref: '#/definitions/main.ErrorMessage'
       summary: 학식 게시판에서 학식 목록을 가져온다.
+  /schedules/{year}/{month}:
+    get:
+      description: ScheduleItem 배열인 schedules를 가진 구조체를 리턴받는다.
+      parameters:
+      - description: 년도
+        in: path
+        name: year
+        type: integer
+      - description: 월
+        in: path
+        name: month
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.GetSchedulesResult'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorMessage'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/main.ErrorMessage'
+      summary: 월간 학사 일정 조회
 swagger: "2.0"
